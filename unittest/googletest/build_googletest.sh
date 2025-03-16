@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pwd=$(PWD)
+pwd=`pwd`
 gtest_lib=${pwd}/lib
 
 rm -rf ${gtest_lib}
