@@ -101,23 +101,23 @@ TEST(SPSCFixedQueueTest, TestStatistics)
     ConsumerStatis consStatis;
 
     queue.GetStatis(prodStatis, consStatis);
-    EXPECT_EQ(prodStatis.uNewEntryCount, 0);
-    EXPECT_EQ(consStatis.uGetEntryCount, 0);
+    EXPECT_EQ(prodStatis.uNewEntryCount, uint64_t(0));
+    EXPECT_EQ(consStatis.uGetEntryCount, uint64_t(0));
 
     queue.Push(1);
     queue.Push(2);
 
     queue.GetStatis(prodStatis, consStatis);
-    EXPECT_EQ(prodStatis.uNewEntryCount, 2);
-    EXPECT_EQ(consStatis.uGetEntryCount, 0);
+    EXPECT_EQ(prodStatis.uNewEntryCount, uint64_t(2));
+    EXPECT_EQ(consStatis.uGetEntryCount, uint64_t(0));
 
     int value;
     queue.Pop(value);
     queue.Pop(value);
 
     queue.GetStatis(prodStatis, consStatis);
-    EXPECT_EQ(prodStatis.uNewEntryCount, 2);
-    EXPECT_EQ(consStatis.uGetEntryCount, 2);
+    EXPECT_EQ(prodStatis.uNewEntryCount, uint64_t(2));
+    EXPECT_EQ(consStatis.uGetEntryCount, uint64_t(2));
 }
 
 TEST(SPSCFixedQueueTest, TestWrapAround)
@@ -164,21 +164,21 @@ TEST(SPSCFixedQueueTest, TestWrapAround)
     ConsumerStatis consStatis;
 
     queue.GetStatis(prodStatis, consStatis);
-    EXPECT_EQ(prodStatis.uPostEntryCount, 8);
-    EXPECT_EQ(consStatis.uFreeEntryCount, 8);
-    EXPECT_EQ(prodStatis.uNewEntryFailCount, 2);
-    EXPECT_EQ(prodStatis.uNewEntryCount, 8);
-    EXPECT_EQ(consStatis.uGetEntryCount, 8);
-    EXPECT_EQ(consStatis.uGetEntryFailCount, 2);
+    EXPECT_EQ(prodStatis.uPostEntryCount, uint64_t(8));
+    EXPECT_EQ(consStatis.uFreeEntryCount, uint64_t(8));
+    EXPECT_EQ(prodStatis.uNewEntryFailCount, uint64_t(2));
+    EXPECT_EQ(prodStatis.uNewEntryCount, uint64_t(8));
+    EXPECT_EQ(consStatis.uGetEntryCount, uint64_t(8));
+    EXPECT_EQ(consStatis.uGetEntryFailCount, uint64_t(2));
     
     queue.ClearStatis();
     queue.GetStatis(prodStatis, consStatis);
-    EXPECT_EQ(prodStatis.uPostEntryCount, 0);
-    EXPECT_EQ(consStatis.uFreeEntryCount, 0);
-    EXPECT_EQ(prodStatis.uNewEntryFailCount, 0);
-    EXPECT_EQ(prodStatis.uNewEntryCount, 0);
-    EXPECT_EQ(consStatis.uGetEntryCount, 0);
-    EXPECT_EQ(consStatis.uGetEntryFailCount, 0);
+    EXPECT_EQ(prodStatis.uPostEntryCount, uint64_t(0));
+    EXPECT_EQ(consStatis.uFreeEntryCount, uint64_t(0));
+    EXPECT_EQ(prodStatis.uNewEntryFailCount, uint64_t(0));
+    EXPECT_EQ(prodStatis.uNewEntryCount, uint64_t(0));
+    EXPECT_EQ(consStatis.uGetEntryCount, uint64_t(0));
+    EXPECT_EQ(consStatis.uGetEntryFailCount, uint64_t(0));
 }
 
 TEST(SPSCFixedQueueTest, TestPushPopWithThread)
@@ -233,11 +233,11 @@ TEST(SPSCFixedQueueTest, TestPushPopWithThread)
     ConsumerStatis consStatis;
 
     queue.GetStatis(prodStatis, consStatis);
-    EXPECT_EQ(prodStatis.uNewEntryCount, 1000000);
-    EXPECT_EQ(prodStatis.uPostEntryCount, 1000000);
+    EXPECT_EQ(prodStatis.uNewEntryCount, uint64_t(1000000));
+    EXPECT_EQ(prodStatis.uPostEntryCount, uint64_t(1000000));
     // EXPECT_EQ(prodStatis.uNewEntryFailCount, 0);
-    EXPECT_EQ(consStatis.uGetEntryCount, 1000000);
-    EXPECT_EQ(consStatis.uFreeEntryCount, 1000000);
+    EXPECT_EQ(consStatis.uGetEntryCount, uint64_t(1000000));
+    EXPECT_EQ(consStatis.uFreeEntryCount, uint64_t(1000000));
     // EXPECT_EQ(consStatis.uGetEntryFailCount, 0);
 }
 

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include <new>
 #include <atomic>
@@ -26,6 +27,8 @@
 #define likely(x)       (x)
 #define unlikely(x)     (x)
 #endif
+
+#define UNSED(x) ((void)(x))
 
 #define ALIGN(x, a) (((x) + (a) - 1) & ~((a) - 1))
 #define ALIGN8(x) ALIGN(x, 8)

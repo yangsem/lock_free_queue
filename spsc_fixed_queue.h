@@ -74,6 +74,8 @@ public:
 
     void PostEntry(T *pEntry)
     {
+        UNSED(pEntry);
+        assert(pEntry == &m_pDatap[m_uTail & m_uMaskp]);
         std::atomic_thread_fence(std::memory_order_release);
         m_statisp.uPostEntryCount++;
         m_uTail++;
@@ -100,6 +102,8 @@ public:
 
     void FreeEntry(T *pEntry)
     {
+        UNSED(pEntry);
+        assert(pEntry == &m_pDatac[m_uHead & m_uMaskc]);
         std::atomic_thread_fence(std::memory_order_acquire);
         m_statisc.uFreeEntryCount++;
         m_uHead++;

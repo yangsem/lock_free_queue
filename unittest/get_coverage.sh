@@ -12,7 +12,7 @@ lcov --capture --directory . --output-file $COVERAGE_DIR/coverage.info
 
 # Filter out system and test files
 echo "Filtering coverage data..."
-lcov --remove $COVERAGE_DIR/coverage.info '/usr/*' '*/tests/*' --output-file $COVERAGE_DIR/coverage_filtered.info
+lcov --remove $COVERAGE_DIR/coverage.info '/usr/*' '*/unittest/*' '*/gtest/*' --output-file $COVERAGE_DIR/coverage_filtered.info
 
 # Generate HTML report
 echo "Generating HTML report..."
