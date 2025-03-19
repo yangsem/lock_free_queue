@@ -10,6 +10,7 @@ TEST(SPSCFixedQueueTest, TestInit)
     EXPECT_EQ(queue.Init(0), ErrorCode::kQueueError);
     EXPECT_EQ(queue.Init(8), 0);
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 }
 
 TEST(SPSCFixedQueueTest, TestNewGetEntry)
@@ -18,6 +19,7 @@ TEST(SPSCFixedQueueTest, TestNewGetEntry)
     queue.Init(4);
 
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 
     int* entry = queue.NewEntry();
     EXPECT_NE(entry, static_cast<int*>(nullptr));
@@ -30,6 +32,7 @@ TEST(SPSCFixedQueueTest, TestNewGetEntry)
     queue.PostEntry(entry);
 
     EXPECT_FALSE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(2));
 
     entry = queue.GetEntry();
     EXPECT_NE(entry, static_cast<int*>(nullptr));
@@ -42,6 +45,7 @@ TEST(SPSCFixedQueueTest, TestNewGetEntry)
     queue.FreeEntry(entry);
 
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 }
 
 TEST(SPSCFixedQueueTest, TestPushPop)
@@ -56,6 +60,7 @@ TEST(SPSCFixedQueueTest, TestPushPop)
     EXPECT_EQ(queue.Push(3), 0);
 
     EXPECT_FALSE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(3));
 
     int value;
     EXPECT_EQ(queue.Pop(value), 0);
@@ -68,6 +73,7 @@ TEST(SPSCFixedQueueTest, TestPushPop)
     EXPECT_EQ(value, 3);
 
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 }
 
 TEST(SPSCFixedQueueTest, TestQueueFull)
@@ -81,6 +87,7 @@ TEST(SPSCFixedQueueTest, TestQueueFull)
     EXPECT_EQ(queue.Push(4), 0);
 
     EXPECT_EQ(queue.Push(5), ErrorCode::kQueueFull);
+    EXPECT_EQ(queue.GetSize(), uint64_t(4));
 }
 
 TEST(SPSCFixedQueueTest, TestQueueEmpty)
@@ -126,6 +133,7 @@ TEST(SPSCFixedQueueTest, TestWrapAround)
     queue.Init(4);
 
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 
     for (int i = 0; i < 4; ++i)
     {
@@ -133,6 +141,7 @@ TEST(SPSCFixedQueueTest, TestWrapAround)
     }
 
     EXPECT_EQ(queue.Push(4), ErrorCode::kQueueFull);
+    EXPECT_EQ(queue.GetSize(), uint64_t(4));
 
     int value;
     for (int i = 0; i < 4; ++i)
@@ -143,6 +152,7 @@ TEST(SPSCFixedQueueTest, TestWrapAround)
 
     EXPECT_EQ(queue.Pop(value), ErrorCode::kQueueEmpty);
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 
     for (int i = 4; i < 8; ++i)
     {
@@ -150,6 +160,7 @@ TEST(SPSCFixedQueueTest, TestWrapAround)
     }
 
     EXPECT_EQ(queue.Push(8), ErrorCode::kQueueFull);
+    EXPECT_EQ(queue.GetSize(), uint64_t(4));
 
     for (int i = 4; i < 8; ++i)
     {
@@ -159,6 +170,7 @@ TEST(SPSCFixedQueueTest, TestWrapAround)
 
     EXPECT_EQ(queue.Pop(value), ErrorCode::kQueueEmpty);
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 
     ProducerStatis prodStatis;
     ConsumerStatis consStatis;
@@ -228,6 +240,7 @@ TEST(SPSCFixedQueueTest, TestPushPopWithThread)
     consumer.join();
 
     EXPECT_TRUE(queue.IsEmpty());
+    EXPECT_EQ(queue.GetSize(), uint64_t(0));
 
     ProducerStatis prodStatis;
     ConsumerStatis consStatis;
