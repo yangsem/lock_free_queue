@@ -11,6 +11,12 @@ class SPSCFixedQueue
 {
 public:
     SPSCFixedQueue() = default;
+
+    SPSCFixedQueue(const SPSCFixedQueue&) = delete;
+    SPSCFixedQueue& operator=(const SPSCFixedQueue&) = delete;
+    SPSCFixedQueue(SPSCFixedQueue&&) = delete;
+    SPSCFixedQueue& operator=(SPSCFixedQueue&&) = delete;
+    
     ~SPSCFixedQueue()
     {
         if (m_pDatap != nullptr)
@@ -21,7 +27,7 @@ public:
         }
     }
 
-    int32_t Init(uint64_t uSize)
+    int32_t Init(uint64_t uSize = 1024)
     {
         if (uSize == 0)
         {
@@ -89,7 +95,7 @@ public:
             return &m_pDatac[m_uHead & m_uMaskc];
         }
 
-        m_uTailRef = m_uTail;
+        m_uTailRef = ACCESS_ONCE(m_uTail);
         if (likely(m_uHead < m_uTailRef))
         {
             m_statisc.uGetEntryCount++;
@@ -109,12 +115,22 @@ public:
         m_uHead++;
     }
 
-    int32_t Push(const T& t)
+    template <typename V>
+    int32_t Push(V&& t)
     {
         auto pEntry = NewEntry();
         if (likely(pEntry != nullptr))
         {
-            *pEntry = t;
+            try
+            {
+                *pEntry = std::forward<V>(t);
+            }
+            catch (...)
+            {
+                m_statisp.uNewEntryFailCount++;
+                return ErrorCode::kQueueError;
+            }
+
             PostEntry(pEntry);
             return 0;
         }
@@ -127,7 +143,16 @@ public:
         auto pEntry = GetEntry();
         if (likely(pEntry != nullptr))
         {
-            t = *pEntry;
+            try
+            {
+                t = std::move(*pEntry);
+            }
+            catch (...)
+            {
+                m_statisc.uGetEntryFailCount++;
+                return ErrorCode::kQueueError;
+            }
+
             FreeEntry(pEntry);
             return 0;
         }
@@ -135,14 +160,14 @@ public:
         return ErrorCode::kQueueEmpty;
     }
 
-    bool IsEmpty() const
-    {
-        return ACCESS_ONCE(m_uTail) - ACCESS_ONCE(m_uHead) == 0;
-    }
-
     uint64_t GetSize() const
     {
         return ACCESS_ONCE(m_uTail) - ACCESS_ONCE(m_uHead);
+    }
+
+    bool IsEmpty() const
+    {
+        return GetSize() == 0;
     }
 
     void GetStatis(ProducerStatis &statisp, ConsumerStatis &statisc) const
