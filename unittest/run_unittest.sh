@@ -13,15 +13,27 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo ""
-echo "================> run all unittest..."
-cd ${pwd}
-for cpp in `ls *test.cpp`;
-do
-    file_name=$(basename "$cpp" .cpp)
-    echo "run unittest: ${file_name}"
-    ${pwd}/build/${file_name}
-done
+if [ -n "$1" ]; then
+    echo ""
+    echo "================> run one unittest: $1"
+    ${pwd}/build/$1
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+else
+    echo ""
+    echo "================> run all unittest..."
+    cd ${pwd}
+    for cpp in `ls *test.cpp`;
+    do
+        file_name=$(basename "$cpp" .cpp)
+        echo "run unittest: ${file_name}"
+        ${pwd}/build/${file_name}
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+    done
+fi
 
 echo ""
 echo "================> get coverage all unittest..."

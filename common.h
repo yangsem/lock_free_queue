@@ -43,6 +43,9 @@
 namespace LockFreeQueue
 {
 
+constexpr uint32_t kAvailableMagic = 0x7F7F7F7F;
+constexpr uint32_t kPlaceholdMagic = 0xF7F7F7F7;
+
 constexpr uint64_t kCacheLineSize = 64;
 
 enum ErrorCode
