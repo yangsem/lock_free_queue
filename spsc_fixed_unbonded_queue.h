@@ -199,6 +199,12 @@ public:
         statisc = m_statisc;
     }
 
+    void ClearStatis()
+    {
+        m_statisp.Reset();
+        m_statisc.Reset();
+    }
+
 private:
     Node *NewNode()
     {
