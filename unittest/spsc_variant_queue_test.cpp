@@ -191,7 +191,7 @@ TEST(SPSCFixedQueueTest, TestQueueRing)
     }
 
     std::string data2(246, 'x');
-    ASSERT_EQ(queue.Push(data2.c_str(), data2.length()), 0);
+    ASSERT_EQ(queue.Push(data2.c_str(), data2.length()), ErrorCode::kQueueFull);
 
     for (uint32_t i = 0; i < 7; i++)
     {
@@ -205,9 +205,7 @@ TEST(SPSCFixedQueueTest, TestQueueRing)
     char buffer2[128];
     uLength = sizeof(buffer2);
     auto pEntry = (void *)&buffer2[0];
-    ASSERT_EQ(queue.Pop(pEntry, uLength), 0);
-    ASSERT_EQ(uLength, sizeof(data));
-    ASSERT_EQ(memcmp(data2.c_str(), pEntry, data2.length()), 0);
+    ASSERT_EQ(queue.Pop(pEntry, uLength), ErrorCode::kQueueEmpty);
 }
 
 TEST(SPSCFixedQueueTest, TestPushPopWithThread)
@@ -248,9 +246,9 @@ TEST(SPSCFixedQueueTest, TestPushPopWithThread)
 
         char output[256];
         auto pEntry = (void *)&output[0];
-        uint32_t uLength = sizeof(output);
         for (int i = 0; i < 1000000; ++i)
         {
+            uint32_t uLength = sizeof(output);
             while (queue.Pop(pEntry, uLength) != 0)
             {
                 usleep(0);

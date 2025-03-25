@@ -242,7 +242,7 @@ private:
                 pEntry->uLength = m_uSizep - uTail;
             }
             std::atomic_thread_fence(std::memory_order_release);
-            m_uTail |= (m_uSizep - 1);
+            m_uTail = (m_uTail | (m_uSizep - 1)) + 1;
             uTail = 0;
 
             /** 
@@ -321,7 +321,7 @@ private:
              *   _____
             */
             std::atomic_thread_fence(std::memory_order_acquire);
-            m_uHead |= (m_uSizec - 1);
+            m_uHead = (m_uHead | (m_uSizec - 1)) + 1;
             uHead = 0;
             if (uHead < uTail)
             {
