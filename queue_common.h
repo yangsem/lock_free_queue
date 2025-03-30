@@ -43,16 +43,73 @@
 namespace LockFreeQueue
 {
 
-constexpr uint32_t kAvailableMagic = 0x7F7F7F7F;
-constexpr uint32_t kPlaceholdMagic = 0xF7F7F7F7;
-
-constexpr uint64_t kCacheLineSize = 64;
-
 enum ErrorCode
 {
     kQueueFull = 1,
     kQueueEmpty = 2,
     kQueueError = 3,
+};
+
+constexpr uint32_t kAvailableMagic = 0x7F7F7F7F;
+constexpr uint32_t kPlaceholdMagic = 0xF7F7F7F7;
+
+constexpr uint64_t kCacheLineSize = 64;
+
+struct Entry
+{
+    uint32_t uMagic;
+    uint32_t uLength;
+    uint8_t pData[1];
+
+    inline uint32_t GetEntrySize() const
+    {
+        return CalEntrySize(uLength);
+    }
+
+    inline static uint32_t CalEntrySize(uint32_t uSize)
+    {
+        return ALIGN8(uSize + offsetof(Entry, pData));
+    }
+
+    inline static uint32_t GetMinSize()
+    {
+        return CalEntrySize(0);
+    }
+
+    static Entry *ToEntry(void *pData)
+    {
+        return reinterpret_cast<Entry *>(
+                reinterpret_cast<uint8_t *>(pData) - GetMinSize());
+    }
+};
+
+template <typename T>
+struct Node
+{
+    ALIGN_AS_CACHELINE uint32_t uSizep{0};
+    uint32_t uTail{0};
+
+    ALIGN_AS_CACHELINE uint32_t uSizec{0};
+    uint32_t uHead{0};
+    uint32_t uTailRef{0};
+
+    Node* pNext{nullptr};
+    T *pData[1];
+
+    static inline uint32_t GetNodeSize()
+    {
+        return CalNodeSize(uSizep);
+    }
+
+    static uint32_t CalNodeSize(uint32_t uSize)
+    {
+        return offsetof(Node, pData) + sizeof(T) * (uSize);
+    }
+
+    static inline uint32_t GetMinNodeSize()
+    {
+        return CalNodeSize(0);
+    }
 };
 
 struct ProducerStatis

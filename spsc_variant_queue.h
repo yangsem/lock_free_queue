@@ -1,41 +1,13 @@
 #ifndef __SPSC_VARIANT_QUEUE_H__
 #define __SPSC_VARIANT_QUEUE_H__
 
-#include "common.h"
+#include "queue_common.h"
 
 namespace LockFreeQueue
 {
 
 class SPSCVariantQueue
 {
-    struct Entry
-    {
-        uint32_t uMagic;
-        uint32_t uLength;
-        uint8_t pData[1];
-
-        inline uint32_t GetEntrySize() const
-        {
-            return ALIGN8(uLength + offsetof(Entry, pData));
-        }
-
-        inline static uint32_t CalEntrySize(uint32_t uSize)
-        {
-            return ALIGN8(uSize + offsetof(Entry, pData));
-        }
-
-        inline static uint32_t GetMinSize()
-        {
-            return CalEntrySize(0);
-        }
-
-        static Entry *ToEntry(void *pData)
-        {
-            return reinterpret_cast<Entry *>(
-                    reinterpret_cast<uint8_t *>(pData) - GetMinSize());
-        }
-    };
-
 public:
     SPSCVariantQueue() = default;
 

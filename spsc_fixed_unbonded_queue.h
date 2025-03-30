@@ -2,7 +2,7 @@
 #define __LOCK_FREE_QUEUE_SPSC_UNBOUNDED_H__
 
 #include <type_traits>
-#include "common.h"
+#include "queue_common.h"
 
 namespace LockFreeQueue
 {
@@ -10,23 +10,6 @@ namespace LockFreeQueue
 template <typename T>
 class SPSCUnboundedQueue
 {
-    struct Header
-    {
-        ALIGN_AS_CACHELINE uint32_t uSizep{0};
-        uint32_t uTail{0};
-
-        ALIGN_AS_CACHELINE uint32_t uSizec{0};
-        uint32_t uHead{0};
-        uint32_t uTailRef{0};
-    };
-
-    struct Node
-    {
-        Header header;
-        ALIGN_AS_CACHELINE Node* pNext{nullptr};
-        T pData[1];
-    };
-
 public:
     SPSCUnboundedQueue() = default;
     
@@ -208,6 +191,7 @@ public:
 private:
     Node *NewNode()
     {
+        auto uNodeSize = Node::CalNodeSize(m_uNodeSize);
         auto ptr = malloc(sizeof(Node) + sizeof(T) * (m_uNodeSize - 1));
         if (ptr == nullptr)
         {
@@ -246,9 +230,10 @@ private:
     {
         if (!std::is_trivial<T>::value)
         {
-            for (uint32_t i = 0; i < pNode->header.uSizep; i++)
+            auto pData = reinterpret_cast<T *>(pNode->GetData());
+            for (uint32_t i = 0; i < pNode->uSizep; i++)
             {
-                pNode->pData[i].~T();
+                pData[i].~T();
             }
         }
 
@@ -262,10 +247,10 @@ private:
     uint64_t m_uFreeBlockCount{0};
     uint64_t m_uNewBlockFailedCount{0};
 
-    ALIGN_AS_CACHELINE Node* m_pHead{nullptr};
+    ALIGN_AS_CACHELINE Node* m_pTail{nullptr};
     ProducerStatis m_statisp;
 
-    ALIGN_AS_CACHELINE Node* m_pTail{nullptr};
+    ALIGN_AS_CACHELINE Node* m_pHead{nullptr};
     ConsumerStatis m_statisc;
 };
 

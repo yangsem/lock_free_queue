@@ -1,7 +1,7 @@
 #ifndef __LOCK_FREE_QUEUE_SPSC_H__
 #define __LOCK_FREE_QUEUE_SPSC_H__
 
-#include "common.h"
+#include "queue_common.h"
 
 namespace LockFreeQueue
 {
